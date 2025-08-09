@@ -42,17 +42,16 @@ It contains:
 
 ## Explanation
 
-1. Importing Libraries
+### 1. Importing Libraries
 We start by importing Python libraries for:
+- **Data handling**: `pandas`, `numpy`
+- **Text processing**: `nltk`, `string`
+- **Machine learning**: `scikit-learn`
 
-Data handling: pandas, numpy
+---
 
-Text processing: nltk, string
-
-Machine learning: scikit-learn
-
-2. Loading the Dataset
-
+### 2. Loading the Dataset
+```python
 df = pd.read_csv('spam_ham_dataset.csv')
 df['text'] = df['text'].apply(lambda x: x.replace('\f\n', ' '))
 Reads the dataset from a CSV file.
@@ -60,10 +59,9 @@ Reads the dataset from a CSV file.
 Cleans unwanted line breaks from the email text.
 
 3. Preprocessing the Text
-   
-We use:
+We apply several preprocessing steps:
 
-Lowercasing: Makes all words the same case (Spam = spam).
+Lowercasing: Makes all words the same case (Spam → spam).
 
 Punctuation removal: Removes symbols like !, ,, ?.
 
@@ -81,9 +79,8 @@ for i in range(len(df)):
     text = [stemmer.stem(word) for word in text if word not in stopwords_set]
     text = ' '.join(text)
     corpus.append(text)
-    
 4. Converting Text to Numbers
-Machine learning models can’t understand text directly we need to turn it into numbers.
+Machine learning models can’t understand raw text directly — we need to convert it into numerical features.
 We use Bag of Words with CountVectorizer:
 
 vectorizer = CountVectorizer()
@@ -96,7 +93,6 @@ y: Labels (0 = ham, 1 = spam).
 5. Splitting into Train/Test Sets
 
 x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2)
-
 80% of the data is used for training.
 
 20% is used for testing model accuracy.
@@ -108,19 +104,19 @@ clf = RandomForestClassifier(n_jobs=-1)
 clf.fit(x_train, y_train)
 Builds multiple decision trees and uses majority voting for prediction.
 
-n_jobs=-1 means it uses all available CPU cores for faster training.
+n_jobs=-1 → uses all CPU cores for faster training.
 
 7. Evaluating Accuracy
-   
+
 score = clf.score(x_test, y_test)
 print("Accuracy:", score)
 Checks how well the model performs on unseen test data.
 
-9. Predicting New Emails
+8. Predicting New Emails
 We can pass a new email (after preprocessing and vectorizing it) to:
 
 clf.predict([vectorized_email])
-to get a Spam (1) or Ham (0) prediction.
+Returns 1 for Spam and 0 for Ham.
 
 ## Future Improvements
 - Try TF-IDF Vectorizer instead of CountVectorizer
