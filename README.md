@@ -31,6 +31,7 @@ It demonstrates:
 - Pandas, NumPy
 - NLTK
 - Scikit-learn
+- Streamlit
 
 ## Dataset
 The dataset used is `spam_ham_dataset.csv`.  
@@ -43,10 +44,16 @@ It contains:
 ## Explanation
 
 ### 1. Importing Libraries
-We start by importing Python libraries for:
-- **Data handling**: `pandas`, `numpy`
-- **Text processing**: `nltk`, `string`
-- **Machine learning**: `scikit-learn`
+We start by importing Python libraries :
+- pandas — for data handling
+
+- numpy — for numerical operations
+
+- nltk — for natural language processing (stopwords, stemming)
+
+- scikit-learn — for machine learning (vectorizer, classifier)
+
+- streamlit — for the web app interface
 
 ---
 
@@ -75,60 +82,53 @@ stemmer = PorterStemmer()
 stopwords_set = set(stopwords.words('english'))
 corpus = []
 
-for i in range(len(df)):
-    text = df['text'].iloc[i].lower()
+def preprocess(text):
+    text = text.lower()
     text = text.translate(str.maketrans('', '', string.punctuation)).split()
     text = [stemmer.stem(word) for word in text if word not in stopwords_set]
-    text = ' '.join(text)
-    corpus.append(text)
+    return ' '.join(text)
+
+corpus = [preprocess(text) for text in df['text']]
 ```
 
 ### 4. Converting Text to Numbers
 Machine learning models can’t understand raw text directly — we need to convert it into numerical features.
 We use Bag of Words with CountVectorizer:
 ```python
-vectorizer = CountVectorizer()
-x = vectorizer.fit_transform(corpus).toarray()
+vectorizer = CountVectorizer(max_features=5000) 
+X = vectorizer.fit_transform(corpus)  # keep it sparse, no .toarray()
 y = df.label_num
+```
 x: Matrix of word counts for each email.
 
 y: Labels (0 = ham, 1 = spam).
-```
 
-### 5. Splitting into Train/Test Sets
-```python
-x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2)
-```
-80% of the data is used for training.
-
-20% is used for testing model accuracy.
-
-### 6. Training the Model
+### 5. Train model
 We use a Random Forest Classifier:
 ```python
 clf = RandomForestClassifier(n_jobs=-1)
-clf.fit(x_train, y_train)
+clf.fit(X, y)
 ```
-Builds multiple decision trees and uses majority voting for prediction.
-
 n_jobs=-1 → uses all CPU cores for faster training.
+### 6. Streamlit UI
 
-### 7. Evaluating Accuracy
 ```python
-score = clf.score(x_test, y_test)
-print("Accuracy:", score)
-```
-Checks how well the model performs on unseen test data.
+st.title("Spam Detector")
 
-### 8. Predicting New Emails
-We can pass a new email (after preprocessing and vectorizing it) to:
-```python
-clf.predict([vectorized_email])
+user_input = st.text_area("Enter your email/message here:")
+
+if st.button("Predict"):
+    if user_input.strip() == "":
+        st.warning("Please enter some text.")
+    else:
+        processed_input = preprocess(user_input)
+        vectorized_input = vectorizer.transform([processed_input]).toarray()
+        prediction = clf.predict(vectorized_input)[0]
+        label = "Spam" if prediction == 1 else "Not Spam"
+        st.success(f"The message is classified as: {label}")
 ```
-Returns 1 for Spam and 0 for Ham.
 
 ## Future Improvements
-- Try TF-IDF Vectorizer instead of CountVectorizer
 - Experiment with other ML models (e.g., Naive Bayes, SVM)
 - Deploy as a web app
 
