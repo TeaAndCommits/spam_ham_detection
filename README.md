@@ -7,6 +7,7 @@ Detect spam emails with Python using NLP preprocessing and a Random Forest class
 - [Tech Stack](#tech-stack)
 - [Dataset](#dataset)
 - [Explanation](#explanation)
+- [Deployment](#deployment)
 - [Future Improvements](#future-improvements)
 
 
@@ -128,9 +129,13 @@ if st.button("Predict"):
         st.success(f"The message is classified as: {label}")
 ```
 
+
+## Deployment
+https://spamhamdetection-bp3c5pczcspga8tmpagj4k.streamlit.app/
+Click on the link to check the streamlit app 
+
 ## Future Improvements
 - Experiment with other ML models (e.g., Naive Bayes, SVM)
-- Deploy as a web app
 
 
 
